@@ -44,3 +44,26 @@
 #characterFrame[data-role="judge"]{background:radial-gradient(ellipse at 50% 70%,#bb8a5944,transparent 70%);}
 #characterFrame #character.has-art{background-size:contain!important;background-position:center center!important;}
 @media(max-width:600px){#characterFrame{height:clamp(185px,32svh,310px)!important}#characterFrame #character{height:100%!important;width:100%!important}#characterFrame #mood{z-index:4}}
+
+/* v1.3 — consistent clean character portraits and compact responsive layout */
+html,body{min-height:100%;overflow-x:hidden}
+#app{min-height:100svh;height:auto}
+#scene{flex:0 0 auto!important;min-height:0!important;display:flex;flex-direction:column;justify-content:flex-start!important;padding-bottom:12px!important}
+#characterFrame{flex:0 0 auto!important;height:clamp(210px,42vw,420px)!important;max-height:42svh;overflow:hidden;isolation:isolate}
+#characterFrame #character.has-art{height:100%!important;width:min(100%,580px)!important;background-size:contain!important;background-repeat:no-repeat!important;background-position:center center!important;background-color:transparent!important;box-shadow:none!important;border:0!important;border-radius:0!important}
+#characterFrame #mood{top:8px;right:8px;z-index:4}
+#characterFrame #podium{height:10px!important;bottom:0;opacity:.9}
+#speaker{border-radius:10px 10px 0 0}
+#dialog{min-height:0!important;overflow-wrap:anywhere;word-break:normal;white-space:normal;hyphens:auto}
+#status:empty,#options:empty,#crossTools[hidden]{display:none!important}
+nav{margin-top:auto;position:relative;bottom:auto}
+@media(max-width:600px){
+ #app{min-height:100svh}
+ #scene{padding:10px 10px 12px!important}
+ #characterFrame{height:clamp(210px,34svh,340px)!important;max-height:none}
+ #characterFrame #character.has-art{width:100%!important;height:100%!important}
+ #dialog{font-size:clamp(16px,4vw,20px);line-height:1.45;padding:13px 15px!important}
+ #speaker{font-size:16px;padding:8px 14px}
+ #act{margin:4px 0 8px}
+ nav{padding:9px 8px 13px;gap:7px}
+}
