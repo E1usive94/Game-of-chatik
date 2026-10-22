@@ -67,3 +67,11 @@ nav{margin-top:auto;position:relative;bottom:auto}
  #act{margin:4px 0 8px}
  nav{padding:9px 8px 13px;gap:7px}
 }
+
+/* v1.4: high-quality, correctly cropped character art */
+#characterFrame #character.has-art{background-size:contain!important;background-position:center center!important;image-rendering:auto!important}
+#characterFrame{background:radial-gradient(ellipse at center 65%,#bd8a6440,transparent 72%)}
+#characterFrame #podium{display:none!important}
+#characterFrame #mood{background:#24192bef;backdrop-filter:blur(5px)}
+#dialog{overflow-wrap:break-word!important;hyphens:none!important}
+@media(max-width:600px){#characterFrame{height:clamp(240px,37svh,380px)!important}#characterFrame #character.has-art{width:100%!important}}

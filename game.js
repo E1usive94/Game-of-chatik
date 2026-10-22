@@ -68,9 +68,9 @@ function face(name,scene){
  const castMood = name==='Подсудимый Дмитрий' ? (/каджит|котик|элитность/i.test(scene?.line||'')?2:0)
  : name==='Дмитрий Самохин' ? (/передаю|закончились/i.test(scene?.line||'')?4:0)
  : name==='Баронесса-пулемётчица' ? (/таверн|альянс/i.test(scene?.line||'')?2:0)
- : name==='Натали' ? 3 : 0;
+ : name==='Натали' ? (/измен|возмущ|протест/i.test(scene?.line||'')?2:/доказ|улика/i.test(scene?.line||'')?4:0) : 0;
  c.classList.toggle('has-art',!!a);
- c.style.backgroundImage=a?`url("assets/${isJudge?'judge_'+expression:a+'_'+castMood}.webp")`:'none';
+ c.style.backgroundImage=a?`url("assets/${isJudge?'judge_'+expression:a+'_'+(castMood===0?'hero':castMood)}.webp")`:'none';
  c.textContent=a?'':(icons[name]||'📜');
  $('characterFrame').dataset.role=isJudge?'judge':name==='Подсудимый Дмитрий'?'defendant':'witness';
  $('characterFrame').dataset.expression=expression||'';
