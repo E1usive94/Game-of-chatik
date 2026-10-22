@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const KEY='trial4954_cinema_v16';
+const KEY='trial4954_simple_v17';
 const scenes=[
 ['Пролог · 21 октября, 20:50','Подсудимый Дмитрий','Всех чатов, вы у меня не одни( Я негодяй','defendant',0],
 ['Пролог · 21 октября, 21:21','Судья Агафонов','Разве у нас по договору пользования чатом такое допустимо? Я считаю, что данный прецедент требует проверки!','judge','thoughtful'],
@@ -37,28 +37,18 @@ const scenes=[
 ];
 const cast=new Set(['judge','samokhin','defendant','natali','baroness']);
 const judgeMoods=new Set(['neutral','thoughtful','smile','angry','surprised','verdict']);
-let pos=0,choiceDone={},typing=false,interval=null,shown='',history=[],audio=null,muted=true,chapter='';
-try{const state=JSON.parse(localStorage.getItem(KEY)||'{}');pos=Math.max(0,Math.min(scenes.length-1,state.pos||0));choiceDone=state.choices||{}}catch{}
-function persist(){localStorage.setItem(KEY,JSON.stringify({pos,choices:choiceDone}))}
-function chime(f=400,d=.07){if(muted)return;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.035,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+d)}catch{}}
-function portrait(s){const box=$('character');box.replaceChildren();const key=s[3],m=s[4];if(cast.has(key)){const im=document.createElement('img');im.className='linear-face';im.alt=s[1];const suffix=key==='judge'?(judgeMoods.has(m)?m:'neutral'):(Number.isInteger(m)?m:0);im.src=`assets/${key}_${suffix}.webp`;im.onerror=()=>{im.onerror=null;im.src=`assets/${key}_hero.webp`};box.append(im)}else{box.textContent=key==='bot'?'🤖':key==='chick'?'🐥':'📜'}}
-function finishTyping(){if(!typing)return false;clearInterval(interval);typing=false;$('dialog').textContent=shown;return true}
-function typeText(t){clearInterval(interval);shown=t;typing=true;const el=$('dialog');el.textContent='';let i=0;interval=setInterval(()=>{i=Math.min(t.length,i+2);el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(interval);typing=false}},19)}
-function splash(title){const el=$('chapterSplash');$('splashTitle').textContent=title;el.hidden=false;el.classList.remove('cinema-chapter');void el.offsetWidth;el.classList.add('cinema-chapter');setTimeout(()=>el.hidden=true,1050)}
-function show(){const s=scenes[pos];$('act').textContent=s[0];$('speaker').textContent=s[1];portrait(s);typeText(s[2]);$('options').replaceChildren();const choices=s[5];if(choices&&!choiceDone[pos]){for(let i=0;i<choices.length;i++){const b=document.createElement('button');b.textContent=choices[i][0];b.onclick=()=>{choiceDone[pos]=i;persist();show();chime(570)};$('options').append(b)}}else if(choices){const picked=choices[choiceDone[pos]];const b=document.createElement('div');b.className='reaction';b.textContent=`↳ ${picked[1]}: ${picked[2]}`;$('options').append(b)}$('next').hidden=!!choices&&!Object.hasOwn(choiceDone,pos);$('next').textContent=pos===scenes.length-1?'↻ С начала':'Далее →';$('reputation').textContent=`${pos+1} / ${scenes.length}`;persist();if(s[0]!==chapter){chapter=s[0];if(pos>0)splash(chapter)}if(pos===30){$('scene').classList.add('finale');setTimeout(()=>$('scene').classList.remove('finale'),1200)}}
-function advance(){if(finishTyping())return;if($('next').hidden)return;if(pos===scenes.length-1){pos=0;choiceDone={};history=[];chapter=''}else{history.push([scenes[pos][1],scenes[pos][2]]);pos++}chime(440);show()}
+let pos=0,choices={},reaction=false,muted=true,audio;
+try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');pos=Math.max(0,Math.min(scenes.length-1,s.pos||0));choices=s.choices||{};reaction=!!s.reaction}catch{}
+function save(){localStorage.setItem(KEY,JSON.stringify({pos,choices,reaction}))}
+function chime(){if(muted)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=440;o.type='sine';g.gain.setValueAtTime(.02,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.09);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+.09)}catch{}}
+function picture(s){const box=$('character');box.replaceChildren();const key=s[3],m=s[4];if(!cast.has(key)){box.textContent=key==='bot'?'🤖':key==='chick'?'🐥':'📜';return}const img=document.createElement('img');img.alt=s[1];let mood=key==='judge'?(judgeMoods.has(m)?m:'neutral'):(Number.isInteger(m)?m:0);img.src=`assets/${key}_${mood}.webp`;img.onerror=()=>{img.onerror=null;img.src=`assets/${key}_hero.webp`};box.append(img)}
+function show(){const s=scenes[pos],picked=choices[pos],option=s[5];$('act').textContent=s[0];$('options').replaceChildren();if(option&&picked!==undefined&&reaction){const r=option[picked];$('speaker').textContent=r[1];$('dialog').textContent=r[2];picture([s[0],r[1],r[2],r[3],r[4]]);$('next').hidden=false}else{$('speaker').textContent=s[1];$('dialog').textContent=s[2];picture(s);if(option&&picked===undefined){option.forEach((o,i)=>{const b=document.createElement('button');b.textContent=o[0];b.onclick=()=>{choices[pos]=i;reaction=true;save();show();chime()};$('options').append(b)});$('next').hidden=true}else{$('next').hidden=false}}$('next').textContent=pos===scenes.length-1?'↻ Смотреть сначала':'Далее →';$('progress').textContent=`Сцена ${pos+1} из ${scenes.length}`;save()}
+function advance(){if($('next').hidden)return;if(reaction){reaction=false}else if(pos===scenes.length-1){pos=0;choices={}}else{pos++}chime();show()}
 $('next').onclick=advance;
-$('scene').addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('#options'))return;advance()});
-$('start').onclick=()=>{pos=0;choiceDone={};history=[];chapter='';$('menu').hidden=true;show()};
+$('start').onclick=()=>{pos=0;choices={};reaction=false;$('menu').hidden=true;show()};
 $('continue').onclick=()=>{$('menu').hidden=true;show()};
 $('continue').hidden=!localStorage.getItem(KEY);
-$('restart').onclick=()=>{if(confirm('Начать историю заново?')){pos=0;choiceDone={};history=[];chapter='';show()}};
 $('home').onclick=()=>{$('menu').hidden=false;$('continue').hidden=false};
-$('sound').onclick=()=>{muted=!muted;$('sound').textContent=muted?'🔇':'🔊';$('menuSound').textContent=muted?'🔇 Звук выключен':'🔊 Звук включён';chime(660)};
-$('menuSound').onclick=()=>$('sound').click();
-$('history').onclick=()=>{finishTyping();$('historyList').replaceChildren();const records=[...history,[scenes[pos][1],scenes[pos][2]]];for(const [who,line] of records){const p=document.createElement('p');const strong=document.createElement('strong');strong.textContent=who+': ';p.append(strong,document.createTextNode(line));$('historyList').append(p)}$('historyModal').hidden=false};
-$('historyClose').onclick=()=>$('historyModal').hidden=true;
-for(const id of ['statsButton','evidence','object','press','present'])$(id).hidden=true;
-for(const id of ['status','crossTools','podium','mood'])$(id).hidden=true;
-window.addEventListener('keydown',e=>{if(!$('menu').hidden||!$('historyModal').hidden)return;if(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();advance()}});
+$('sound').onclick=()=>{muted=!muted;$('sound').textContent=muted?'🔇':'🔊';chime()};
+window.addEventListener('keydown',e=>{if(!$('menu').hidden)return;if(e.key==='Enter'||e.key==='ArrowRight'){e.preventDefault();advance()}});
 show();
