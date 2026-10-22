@@ -1,92 +1,64 @@
-/* Дело №4954 — режиссёрская версия 1.1. Без внешних зависимостей. */
 const $=id=>document.getElementById(id);
-const KEY='trial4954_investigator_v11';
-const evidence=[
-{id:'admission',title:'21.10, 20:50 · Признание',detail:'Дмитрий: «Всех чатов, вы у меня не одни( Я негодяй». Факт наличия других чатов подтверждён.'},
-{id:'request',title:'21.10, 21:21 · Запрос проверки',detail:'Агафонов: «Разве у нас по договору пользования чатом такое допустимо? Я считаю что данный прецедент требует проверки!»'},
-{id:'khajiit',title:'22.10, 08:22 · Объяснение каджита',detail:'«Этот котик не виноват, такова его натура. Каджит не крал, а остальное все допустимо, только порицаемо».'},
-{id:'bot',title:'22.10, 08:46 · Показания Геннадия',detail:'В опубликованной Самохиным сцене бот утверждает, что у Дмитрия есть значок «⭐ почётный участник».'},
-{id:'bot_retraction',title:'22.10, 08:46 · Опровержение',detail:'В следующей сцене Самохина показания о значке исключаются как не соответствующие действительности.'},
-{id:'first_baroness',title:'22.10, 09:29 · Первый вызов Баронессы',detail:'Самохин публикует художественную сцену показаний Баронессы о «Полуночном Дозоре». Независимого подтверждения её утверждений нет.'},
-{id:'handover',title:'22.10, 09:30 · Передача дела',detail:'Самохин: «Все @it_walker Дальше передаю дело в ваше правление Мои свидетели закончились».'},
-{id:'chick',title:'22.10, 08:58 · Предложение цыплёнка',detail:'Участник с аватаркой цыплёнка предлагает добавить Баронессу в фильм и обещает привести 500 учеников в комментарии.'},
-{id:'lastword',title:'22.10, 10:58 · Последнее слово',detail:'Подсудимый признаёт, что состоит в нескольких чатах, и оспаривает идею, что это равнозначно предательству.'},
-{id:'rules',title:'Договор пользования чатом',detail:'В присланных материалах нет текста правила, прямо запрещающего участие в других чатах. Отсутствие документа в деле не доказывает, что правила не существует.'}
+const KEY='trial4954_cinema_v16';
+const scenes=[
+['Пролог · 21 октября, 20:50','Подсудимый Дмитрий','Всех чатов, вы у меня не одни( Я негодяй','defendant',0],
+['Пролог · 21 октября, 21:21','Судья Агафонов','Разве у нас по договору пользования чатом такое допустимо? Я считаю, что данный прецедент требует проверки!','judge','thoughtful'],
+['Пролог · 21 октября, 23:11','Дмитрий Самохин','Закинем в клод на суд. Пусть он решает.','samokhin',1],
+['Глава I · Суд идёт','Судья Агафонов','Всем встать! Суд идёт! Дело № 4954/2026 о чатовой неверности принимается к рассмотрению.','judge','angry'],
+['Глава I · Суд идёт','Судья Агафонов','Сам факт существования других чатов ещё не является достаточным основанием для обвинительного приговора.','judge','neutral'],
+['Глава I · Суд идёт','Натали','Изменяешь нам? Это вообще как понимать?','natali',2],
+['Глава I · Суд идёт','Рассказчик','Следствие может вмешаться: каким тоном задать первый вопрос?','narrator',0,[['Строго и официально','Судья Агафонов','Следствие просит объяснить обстоятельства.','judge','angry'],['С лёгкой иронией','Судья Агафонов','Уточним: сколько вкладок Telegram открыто в вашем сердце?','judge','smile']]],
+['Глава II · Каджит не крал','Подсудимый Дмитрий','Этот котик не виноват, такова его натура. Каджит не крал, а остальное всё допустимо, только порицаемо.','defendant',4],
+['Глава II · Каджит не крал','Судья Агафонов','Суд принимает к сведению: каджит не крал. Но обвинения в хищении сладких рулетов в Вайтране и не предъявлялось!','judge','smile'],
+['Глава II · Каджит не крал','Судья Агафонов','Нельзя наказать за нарушение закона, которого не существует. Однако общественное порицание — отдельный вопрос.','judge','thoughtful'],
+['Глава III · Свидетель Геннадий','Дмитрий Самохин','Суд вызывает стикер-бота Геннадия. Беспристрастность: условная.','samokhin',3],
+['Глава III · Свидетель Геннадий','Геннадий','По моим данным, у подсудимого имеется значок «Почётный участник».','bot',0],
+['Глава III · Свидетель Геннадий','Рассказчик','Позже выясняется: история со значком выдумана. Как отреагировать?','narrator',0,[['Потребовать перепроверки','Судья Агафонов','Исключить сведения о значке из материалов дела.','judge','angry'],['Отнестись с иронией','Судья Агафонов','Геннадий, художественный талант не заменяет доказательств.','judge','smile']]],
+['Глава III · Свидетель Геннадий','Геннадий','Я просто иногда додумываю детали для драматического эффекта.','bot',0],
+['Глава IV · Баронесса','Дмитрий Самохин','Вызвать Баронессу-пулемётчицу!','samokhin',4],
+['Глава IV · Баронесса','Баронесса-пулемётчица','Я бы не назвала это изменой. Скорее параллельным альянсом.','baroness',3],
+['Глава IV · Баронесса','Баронесса-пулемётчица','Юридически это можно расценить как тайм-менеджмент, а не предательство.','baroness',1],
+['Глава V · Передача дела','Дмитрий Самохин','Всё. @it_walker, дальше передаю дело в ваше правление. Мои свидетели закончились.','samokhin',5],
+['Глава V · Передача дела','Судья Агафонов','Суд принимает материалы дела. Отныне никакие личные симпатии не могут влиять на правосудие.','judge','neutral'],
+['Глава V · Неожиданный свидетель','Волшебный цыплёнок','ВАША ЧЕСТЬ! У МЕНЯ ЕСТЬ СВИДЕТЕЛЬ! И пятьсот зрителей!','chick',0],
+['Глава V · Неожиданный свидетель','Судья Агафонов','Количество подписчиков не является доказательством. Но пятьсот зрителей занесите в протокол.','judge','surprised'],
+['Глава V · Неожиданный свидетель','Баронесса-пулемётчица','Не беспокойтесь, ваша честь. Сегодня я буду стрелять исключительно фактами.','baroness',4],
+['Глава V · Неожиданный свидетель','Судья Агафонов','Такой вид вооружения допускается.','judge','smile'],
+['Глава V · Неожиданный свидетель','Баронесса-пулемётчица','Если человек заходит в другую таверну, это ещё не означает, что он предал свою гильдию.','baroness',0],
+['Глава VI · Последнее слово','Судья Агафонов','Гражданин Дмитрий! Считаете ли вы чат «Общение» своим главным чатом?','judge','angry'],
+['Глава VI · Последнее слово','Подсудимый Дмитрий','Я состою в нескольких чатах. И я не буду отрицать очевидного.','defendant',3],
+['Глава VI · Последнее слово','Подсудимый Дмитрий','Но разве каджит, зашедший в таверну выпить эля, предаёт свою гильдию?','defendant',1],
+['Глава VI · Последнее слово','Подсудимый Дмитрий','Элитность — в людях. В Баронессе, в волшебном цыплёнке, в Агафонове, который судит поступки, а не существительные.','defendant',5],
+['Финал · Решение суда','Рассказчик','Какую формулировку предложить суду? Итог истории от выбора не изменится.','narrator',0,[['Справедливую','Судья Агафонов','Суд благодарит за взвешенное заключение.','judge','neutral'],['Ироничную','Судья Агафонов','Суд благодарит за заключение с элементами каджитского права.','judge','smile']]],
+['Финал · Решение суда','Судья Агафонов','Участие в других чатах установлено. Но доказательств нарушения конкретного запрета суду не представлено.','judge','thoughtful'],
+['Финал · Решение суда','Судья Агафонов','Подсудимого оправдать по предъявленным обвинениям. Право сообщества на добродушное порицание сохранить.','judge','verdict'],
+['Эпилог · За пределами суда','Подсудимый Дмитрий','Вот так мы и приходим к тому, что нейронки отвечают на нейронки, а потом нейронки всё визуализируют…','defendant',4],
+['Конец · Дело № 4954','Рассказчик','Судебное заседание окончено. Чат «Общение» продолжает работу. Все персонажи вымышлены ровно настолько, насколько позволяет переписка.','narrator',0]
 ];
-const story=[
-{act:'Пролог · 21 октября, 20:50',name:'Подсудимый Дмитрий',line:'Всех чатов, вы у меня не одни( Я негодяй',note:'Реальная реплика из переписки'},
-{act:'Пролог · 21 октября, 21:21',name:'Судья Агафонов',line:'Разве у нас по договору пользования чатом такое допустимо? Я считаю что данный прецедент требует проверки!',note:'Реальная реплика; на этом этапе — инициатор проверки'},
-{act:'Пролог · 21 октября, 23:11',name:'Дмитрий Самохин',line:'Закинем в клод на суд. Пусть он решает.',note:'Реальная реплика'},
-{act:'Глава I · Суд идёт',name:'Судья Агафонов',line:'ВСЕМ ВСТАТЬ! СУД ИДЁТ! Здесь не судят за количество чатов. Здесь выясняют, что значит быть частью одного из них.',note:'Сокращённая цитата из опубликованного судебного текста'},
-{act:'Глава I · Назначение следователя',name:'Секретарь суда',line:'Вас назначили независимым следователем. Проверяйте факты, отделяйте настоящие сообщения от художественных показаний. Судья вынесет решение самостоятельно.',note:'Художественная игровая сцена'},
-{act:'Глава II · Каджит не крал',name:'Подсудимый Дмитрий',line:'Этот котик не виноват, такова его натура. Каджит не крал, а остальное все допустимо, только порицаемо.',note:'Реальная реплика от 22 октября, 08:22'},
-{act:'Глава II · Следственная проверка',name:'Судья Агафонов',line:'Следователь! Определите, какие выводы можно сделать из признания. Не приписывайте подсудимому того, чего он не говорил.',next:'cross',round:0,note:'Игровая реплика'},
-{act:'Глава III · Свидетель Геннадий',name:'Дмитрий Самохин',line:'Суд вызывает свидетеля: Стикер-бот Геннадий, искусственный интеллект, установленный в чате «Общение».',note:'Из художественного сообщения Самохина от 08:46'},
-{act:'Глава III · Свидетель Геннадий',name:'Геннадий',line:'У подсудимого есть значок «⭐ почётный участник»… хотя подождите, с фактами здесь есть небольшая проблема.',note:'Стилизованный пересказ художественной сцены'},
-{act:'Глава III · Следственная проверка',name:'Судья Агафонов',line:'В показаниях бота обнаружены сомнительные детали. Следователь, отделите выдумку от проверяемых сведений.',next:'cross',round:1,note:'Игровая реплика'},
-{act:'Глава IV · Первая Баронесса',name:'Дмитрий Самохин',line:'Суд вызывает свидетельницу по делу. Представляется как «Баронесса-пулемётчица».',note:'Из художественного сообщения Самохина от 09:29'},
-{act:'Глава IV · Первая Баронесса',name:'Баронесса-пулемётчица',line:'Я бы не назвала это изменой, скорее… параллельным альянсом.',note:'Реплика персонажа в художественном тексте Самохина, не подтверждённое свидетельство'},
-{act:'Глава V · Передача полномочий',name:'Дмитрий Самохин',line:'Все. @it_walker. Дальше передаю дело в ваше правление. Мои свидетели закончились.',note:'Реальная реплика от 09:30'},
-{act:'Глава V · Новый этап суда',name:'Судья Агафонов',line:'Суд принимает материалы дела. Отныне никакие личные симпатии и количество отправленных мемов не могут влиять на ход правосудия.',note:'Из художественного судебного сообщения Агафонова от 09:37'},
-{act:'Глава V · Загадочный цыплёнок',name:'Волшебный цыплёнок',line:'Добавьте в него баронессу-пулеметчицу, и я займусь рекламой нашего творчества бесплатно, все мои 500 учеников придут в комментарии к видео!',note:'Реальная реплика участника от 08:58; в суде обыгрывается как повторный вызов'},
-{act:'Глава V · Второе явление',name:'Баронесса-пулемётчица',line:'Если человек заходит в другую таверну, это ещё не означает, что он предал свою гильдию.',note:'Из художественной сцены Агафонова от 09:37'},
-{act:'Глава V · Следственная проверка',name:'Судья Агафонов',line:'В материалах есть два литературных вызова Баронессы. Не превращайте художественный текст в установленный факт.',next:'cross',round:2,note:'Игровая реплика'},
-{act:'Глава VI · Последнее слово',name:'Подсудимый Дмитрий',line:'Я состою в нескольких чатах. И я не буду отрицать очевидного. Но разве каджит, зашедший в таверну выпить эля, предаёт свою гильдию?',note:'Сокращённая цитата реального сообщения от 10:58'},
-{act:'Глава VI · Последнее слово',name:'Подсудимый Дмитрий',line:'Элитность — в людях. В Агафонове, который судит поступки, а не существительные.',note:'Сокращённая цитата реального сообщения от 10:58'},
-{act:'Глава VI · Следственное заключение',name:'Секретарь суда',line:'Следователь, представьте суду итоговую оценку доказательств. От качества заключения зависит решение, но приговор выносит Агафонов.',next:'report',note:'Игровая сцена'},
-{act:'Финал · Мотивированный приговор',name:'Судья Агафонов',line:'Суд установил факт участия подсудимого в других чатах. Но нарушение конкретного запрета материалами дела не доказано. Подсудимый оправдан. Чат может быть элитным. Суд обязан быть справедливым!',end:true},
-{act:'Финал · Возвращение на доследование',name:'Судья Агафонов',line:'Следственное заключение не позволяет отделить подтверждённые сообщения от художественных сцен. Дело возвращается на доследование. И Геннадия, пожалуйста, больше не назначать единственным экспертом.',end:true},
-{act:'Финал · Общественное порицание',name:'Судья Агафонов',line:'Суд не усматривает оснований для наказания за сам факт других чатов. Однако выражение «Я негодяй» принимается как самоирония, а не признание вины. Объявить символическое порицание без ограничения права на мемы!',end:true},
-{act:'Секретный финал · Следователь безупречен',name:'Судья Агафонов',line:'Все противоречия выявлены без ошибок. Суд исключает недостоверные сведения Геннадия, признаёт художественный характер показаний Баронессы и оправдывает подсудимого. Следователю — благодарность. Цыплёнку — отдельный протокол на 500 зрителей!',end:true}
-];
-const rounds=[
-[{name:'Секретарь суда',line:'Факт существования других чатов не подтверждён.',correct:'admission',hint:'Вспомните самое первое сообщение от 20:50.',success:'Установлено: подсудимый сам сообщил о других чатах.'},{name:'Секретарь суда',line:'Подсудимый никогда не ссылался на каджита.',correct:'khajiit',hint:'Найдите объяснение от 08:22.',success:'Установлено: ссылка на каджита действительно была.'},{name:'Секретарь суда',line:'В деле представлен подписанный запрет на другие чаты.',correct:'rules',hint:'Проверьте наличие текста договора.',success:'Текст запрета не представлен. Суд не будет выдумывать правила.'}],
-[{name:'Геннадий',line:'Мой рассказ о значке «почётный участник» признан достоверным.',correct:'bot_retraction',hint:'Проверьте, что произошло с показанием о значке.',success:'Опровержение найдено: рассказ о значке исключён из материалов.'},{name:'Геннадий',line:'Вопрос о чатовой верности впервые возник только утром 22 октября.',correct:'request',hint:'Найдите вечерний запрос о проверке.',success:'Агафонов поставил вопрос ещё 21 октября, в 21:21.'},{name:'Геннадий',line:'Никаких сведений о моём выступлении в материалах дела нет.',correct:'bot',hint:'Найдите сообщение Самохина с вызовом бота.',success:'Художественная сцена с Геннадием действительно опубликована.'}],
-[{name:'Баронесса-пулемётчица',line:'Мои первые показания — подтверждённая запись реального допроса.',correct:'first_baroness',hint:'Посмотрите, как оформлен первый вызов свидетельницы.',success:'Это художественная судебная сцена Самохина, а не проверенный протокол.'},{name:'Волшебный цыплёнок',line:'Самохин не передавал дело Агафонову.',correct:'handover',hint:'Найдите сообщение от 09:30.',success:'Передача полномочий подтверждена реальным сообщением.'},{name:'Секретарь суда',line:'Подсудимый так и не выступил с последним словом.',correct:'lastword',hint:'Вспомните длинную речь от 10:58.',success:'Последнее слово было произнесено. Подсудимый признал факт других чатов, но не измену.'}]
-];
-const art={'Судья Агафонов':'judge','Дмитрий Самохин':'samokhin','Подсудимый Дмитрий':'defendant','Натали':'natali','Баронесса-пулемётчица':'baroness'};
-const icons={'Судья Агафонов':'⚖️','Дмитрий Самохин':'📁','Подсудимый Дмитрий':'😼','Натали':'👩','Баронесса-пулемётчица':'🎸','Геннадий':'🤖','Волшебный цыплёнок':'🐥','Секретарь суда':'📜'};
-let state={pos:0,mode:'story',round:0,step:0,selected:null,solved:[],wrong:0,correct:0,presses:0,report:null};
-try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Number.isInteger(s.pos)&&s.pos>=0&&s.pos<story.length)state={...state,...s}}catch{}
-let sound=false,ctx=null,typing=null,completeText='',lastAct='',log=[];
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function tone(freq=440,duration=.12){if(!sound)return;try{ctx??=new (window.AudioContext||window.webkitAudioContext)();const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=freq;o.type='triangle';g.gain.setValueAtTime(.04,ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+duration);o.connect(g).connect(ctx.destination);o.start();o.stop(ctx.currentTime+duration)}catch{}}
-function typeLine(t){clearInterval(typing);completeText=t;const d=$('dialog');d.textContent='';let i=0;typing=setInterval(()=>{d.textContent=t.slice(0,i+=3);if(i>=t.length)clearInterval(typing)},15)}
-function finishTyping(){if($('dialog').textContent!==completeText){clearInterval(typing);$('dialog').textContent=completeText;return true}return false}
-function judgeExpression(scene){
- const t=(scene?.line||'').toLowerCase();
- if(scene?.end||/приговор|оправдан|постановил/.test(t))return 'verdict';
- if(/всем встать|суд идёт|следователь!|не превращайте/.test(t))return 'angry';
- if(/сомнительн|выдум|противореч|показан/.test(t))return 'thinking';
- if(/цыплён|баронесс|пятьсот/.test(t))return 'surprised';
- if(/благодар|мемов|элитным/.test(t))return 'smile';
- return 'neutral';
-}
-function face(name,scene){
- const c=$('character'),isJudge=name==='Судья Агафонов',a=art[name];
- const expression=isJudge?judgeExpression(scene):null;
- const castMood = name==='Подсудимый Дмитрий' ? (/каджит|котик|элитность/i.test(scene?.line||'')?2:0)
- : name==='Дмитрий Самохин' ? (/передаю|закончились/i.test(scene?.line||'')?4:0)
- : name==='Баронесса-пулемётчица' ? (/таверн|альянс/i.test(scene?.line||'')?2:0)
- : name==='Натали' ? (/измен|возмущ|протест/i.test(scene?.line||'')?2:/доказ|улика/i.test(scene?.line||'')?4:0) : 0;
- c.classList.toggle('has-art',!!a);
- c.style.backgroundImage=a?`url("assets/${isJudge?'judge_'+expression:a+'_'+(castMood===0?'hero':castMood)}.webp")`:'none';
- c.textContent=a?'':(icons[name]||'📜');
- $('characterFrame').dataset.role=isJudge?'judge':name==='Подсудимый Дмитрий'?'defendant':'witness';
- $('characterFrame').dataset.expression=expression||'';
- $('mood').textContent=isJudge?({'neutral':'● Председательствует','thinking':'● Изучает дело','smile':'● Ирония','angry':'● Строгий тон','surprised':'● Удивление','verdict':'● Выносит решение'}[expression]):name==='Геннадий'?'● Данные под вопросом':'● Даёт показания';
-}
-function showFlash(text){$('flash').textContent=text;$('flash').hidden=false;tone(330,.25);setTimeout(()=>$('flash').hidden=true,950)}
-function showSplash(t){$('splashTitle').textContent=t;$('chapterSplash').hidden=false;setTimeout(()=>$('chapterSplash').hidden=true,1250)}
-function record(s){const line=s.name+': '+s.line;if(log[log.length-1]!==line)log.push(line)}
-function render(){const cross=state.mode==='cross',s=cross?rounds[state.round][state.step]:story[state.pos];if(!s)return;const act=cross?`Проверка ${state.round+1} · Показание ${state.step+1}/3`:s.act;if(lastAct&&lastAct!==act&&!cross)showSplash(act);lastAct=act;$('act').textContent=act;face(s.name,s);$('speaker').textContent=s.name;typeLine(s.line);record(s);$('options').replaceChildren();$('status').hidden=!cross;$('crossTools').hidden=!cross;$('next').hidden=false;$('next').disabled=false;$('next').textContent=s.end?'↺ Новое расследование':'Далее →';$('reputation').textContent=`🔎 ${state.correct}/9 · ⭐ ${Math.max(0,100-state.wrong*12)}`;
-if(cross){$('patience').textContent=`🔎 Доказано: ${state.solved.length}/3`;$('hint').textContent=state.solved.includes(state.step)?'✓ Показание проверено.':'Выберите улику и нажмите «ПРОТЕСТУЮ!».';$('press').disabled=state.solved.includes(state.step);$('next').disabled=!state.solved.includes(state.step)}else if(s.next==='report'){renderReport();$('next').hidden=true}else if(s.end){$('next').textContent='↺ Начать заново'}else if(s.next==='cross'){$('next').textContent='🔎 Начать проверку'}save()}
-function advance(){if(finishTyping())return;if(state.mode==='cross'){if(!state.solved.includes(state.step))return;if(state.step<2){state.step++;state.selected=null}else{state.mode='story';state.pos=[7,10,17][state.round];state.solved=[];state.selected=null}render();return}const s=story[state.pos];if(s.end){reset();return}if(s.next==='cross'){state.mode='cross';state.round=s.round;state.step=0;state.solved=[];state.selected=null}else if(s.next==='report'){return}else state.pos++;render()}
-function renderReport(){const o=$('options');o.replaceChildren();const p=document.createElement('p');p.className='report-prompt';p.textContent='Какой вывод подтверждается материалами?';o.append(p);[['Наличие других чатов подтверждено, но запрет не представлен. Художественные показания не считаю фактами.','verified'],['Суд должен наказать за сам факт других чатов.','punish'],['Все показания Геннадия и Баронессы бесспорны.','uncritical']].forEach(([label,value])=>{const b=document.createElement('button');b.textContent=label;b.onclick=()=>{state.report=value;state.pos=value==='verified'?(state.correct===9&&state.wrong===0?23:20):value==='punish'?22:21;showFlash('СУД УДАЛЯЕТСЯ!');render()};o.append(b)})}
-function present(){finishTyping();if(state.mode!=='cross'){showFlash('ВОЗРАЖЕНИЕ!');return}if(state.solved.includes(state.step))return;if(!state.selected){$('hint').textContent='Сначала выберите улику в папке.';return}const t=rounds[state.round][state.step];if(state.selected===t.correct){state.correct++;state.solved.push(state.step);showFlash('ПРОТЕСТУЮ!');clearInterval(typing);completeText=t.success;$('dialog').textContent=t.success;$('hint').textContent='✓ Доказательство принято. Можно продолжать.';$('next').disabled=false;$('press').disabled=true}else{state.wrong++;showFlash('ОТКЛОНЕНО!');$('hint').textContent='Подсказка: '+t.hint} $('reputation').textContent=`🔎 ${state.correct}/9 · ⭐ ${Math.max(0,100-state.wrong*12)}`;save()}
-function openEvidence(){const list=$('evidenceList');list.replaceChildren();for(const e of evidence){const b=document.createElement('button');b.className='evidence-item';b.classList.toggle('selected',state.selected===e.id);const strong=document.createElement('strong'),small=document.createElement('small');strong.textContent=e.title;small.textContent=e.detail;b.append(strong,small);b.onclick=()=>{state.selected=e.id;save();openEvidence()};list.append(b)}$('modal').hidden=false}
-function reset(){state={pos:0,mode:'story',round:0,step:0,selected:null,solved:[],wrong:0,correct:0,presses:0,report:null};log=[];lastAct='';render()}
-$('next').onclick=advance;$('object').onclick=present;$('evidence').onclick=openEvidence;$('close').onclick=()=>$('modal').hidden=true;$('present').onclick=()=>{$('modal').hidden=true;present()};$('press').onclick=()=>{state.presses++;$('hint').textContent=rounds[state.round][state.step].hint;save()};$('history').onclick=()=>{$('historyList').replaceChildren();for(const x of log){const p=document.createElement('p');p.textContent=x;$('historyList').append(p)}$('historyModal').hidden=false};$('historyClose').onclick=()=>$('historyModal').hidden=true;
-$('statsButton').onclick=()=>{$('statsBody').replaceChildren();for(const x of [`Подтверждённых противоречий: ${state.correct}/9`,`Ошибочных возражений: ${state.wrong}`,`Подсказок: ${state.presses}`,`Репутация следователя: ${Math.max(0,100-state.wrong*12)}/100`,`Роль: независимый следователь`]){const p=document.createElement('p');p.textContent=x;$('statsBody').append(p)}$('statsModal').hidden=false};$('statsClose').onclick=()=>$('statsModal').hidden=true;
-$('restart').onclick=()=>{if(confirm('Начать расследование заново?'))reset()};$('home').onclick=()=>{$('menu').hidden=false;$('continue').hidden=false};$('start').onclick=()=>{reset();$('menu').hidden=true};$('continue').onclick=()=>{$('menu').hidden=true;render()};$('continue').hidden=!localStorage.getItem(KEY);function toggleSound(){sound=!sound;$('sound').textContent=sound?'🔊':'🔇';$('menuSound').textContent=sound?'🔊 Звук: включён':'🔇 Звук: выключен';tone(550)}$('sound').onclick=toggleSound;$('menuSound').onclick=toggleSound;
-window.addEventListener('keydown',e=>{if(!$('menu').hidden)return;if(e.key==='Escape'){for(const id of ['modal','historyModal','statsModal'])$(id).hidden=true;return}if((e.key==='Enter'||e.key===' ')&&!$('next').hidden&&!$('next').disabled){e.preventDefault();advance()}if(e.key.toLowerCase()==='e')openEvidence();if(e.key.toLowerCase()==='o')present()});render();
+const cast=new Set(['judge','samokhin','defendant','natali','baroness']);
+const judgeMoods=new Set(['neutral','thoughtful','smile','angry','surprised','verdict']);
+let pos=0,choiceDone={},typing=false,interval=null,shown='',history=[],audio=null,muted=true,chapter='';
+try{const state=JSON.parse(localStorage.getItem(KEY)||'{}');pos=Math.max(0,Math.min(scenes.length-1,state.pos||0));choiceDone=state.choices||{}}catch{}
+function persist(){localStorage.setItem(KEY,JSON.stringify({pos,choices:choiceDone}))}
+function chime(f=400,d=.07){if(muted)return;try{audio=audio||new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.035,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+d);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+d)}catch{}}
+function portrait(s){const box=$('character');box.replaceChildren();const key=s[3],m=s[4];if(cast.has(key)){const im=document.createElement('img');im.className='linear-face';im.alt=s[1];const suffix=key==='judge'?(judgeMoods.has(m)?m:'neutral'):(Number.isInteger(m)?m:0);im.src=`assets/${key}_${suffix}.webp`;im.onerror=()=>{im.onerror=null;im.src=`assets/${key}_hero.webp`};box.append(im)}else{box.textContent=key==='bot'?'🤖':key==='chick'?'🐥':'📜'}}
+function finishTyping(){if(!typing)return false;clearInterval(interval);typing=false;$('dialog').textContent=shown;return true}
+function typeText(t){clearInterval(interval);shown=t;typing=true;const el=$('dialog');el.textContent='';let i=0;interval=setInterval(()=>{i=Math.min(t.length,i+2);el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(interval);typing=false}},19)}
+function splash(title){const el=$('chapterSplash');$('splashTitle').textContent=title;el.hidden=false;el.classList.remove('cinema-chapter');void el.offsetWidth;el.classList.add('cinema-chapter');setTimeout(()=>el.hidden=true,1050)}
+function show(){const s=scenes[pos];$('act').textContent=s[0];$('speaker').textContent=s[1];portrait(s);typeText(s[2]);$('options').replaceChildren();const choices=s[5];if(choices&&!choiceDone[pos]){for(let i=0;i<choices.length;i++){const b=document.createElement('button');b.textContent=choices[i][0];b.onclick=()=>{choiceDone[pos]=i;persist();show();chime(570)};$('options').append(b)}}else if(choices){const picked=choices[choiceDone[pos]];const b=document.createElement('div');b.className='reaction';b.textContent=`↳ ${picked[1]}: ${picked[2]}`;$('options').append(b)}$('next').hidden=!!choices&&!Object.hasOwn(choiceDone,pos);$('next').textContent=pos===scenes.length-1?'↻ С начала':'Далее →';$('reputation').textContent=`${pos+1} / ${scenes.length}`;persist();if(s[0]!==chapter){chapter=s[0];if(pos>0)splash(chapter)}if(pos===30){$('scene').classList.add('finale');setTimeout(()=>$('scene').classList.remove('finale'),1200)}}
+function advance(){if(finishTyping())return;if($('next').hidden)return;if(pos===scenes.length-1){pos=0;choiceDone={};history=[];chapter=''}else{history.push([scenes[pos][1],scenes[pos][2]]);pos++}chime(440);show()}
+$('next').onclick=advance;
+$('scene').addEventListener('click',e=>{if(e.target.closest('button')||e.target.closest('#options'))return;advance()});
+$('start').onclick=()=>{pos=0;choiceDone={};history=[];chapter='';$('menu').hidden=true;show()};
+$('continue').onclick=()=>{$('menu').hidden=true;show()};
+$('continue').hidden=!localStorage.getItem(KEY);
+$('restart').onclick=()=>{if(confirm('Начать историю заново?')){pos=0;choiceDone={};history=[];chapter='';show()}};
+$('home').onclick=()=>{$('menu').hidden=false;$('continue').hidden=false};
+$('sound').onclick=()=>{muted=!muted;$('sound').textContent=muted?'🔇':'🔊';$('menuSound').textContent=muted?'🔇 Звук выключен':'🔊 Звук включён';chime(660)};
+$('menuSound').onclick=()=>$('sound').click();
+$('history').onclick=()=>{finishTyping();$('historyList').replaceChildren();const records=[...history,[scenes[pos][1],scenes[pos][2]]];for(const [who,line] of records){const p=document.createElement('p');const strong=document.createElement('strong');strong.textContent=who+': ';p.append(strong,document.createTextNode(line));$('historyList').append(p)}$('historyModal').hidden=false};
+$('historyClose').onclick=()=>$('historyModal').hidden=true;
+for(const id of ['statsButton','evidence','object','press','present'])$(id).hidden=true;
+for(const id of ['status','crossTools','podium','mood'])$(id).hidden=true;
+window.addEventListener('keydown',e=>{if(!$('menu').hidden||!$('historyModal').hidden)return;if(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();advance()}});
+show();
