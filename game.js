@@ -1,7 +1,8 @@
 const $=id=>document.getElementById(id);
-const KEY='trial4954_simple_v17';
+const KEY='trial4954_simple_v18';
 const scenes=[
-['Пролог · 21 октября, 20:50','Подсудимый Дмитрий','Всех чатов, вы у меня не одни( Я негодяй','defendant',0],
+['Пролог · 21 октября, 20:49','Анатолий','Ему хватает этого чата','narrator',0],
+['Пролог · 21 октября, 20:50','Подсудимый Дмитрий','Всех чатов, вы у меня не одни (Я негодяй)','defendant',0],
 ['Пролог · 21 октября, 21:21','Судья Агафонов','Разве у нас по договору пользования чатом такое допустимо? Я считаю, что данный прецедент требует проверки!','judge','thoughtful'],
 ['Пролог · 21 октября, 23:11','Дмитрий Самохин','Закинем в клод на суд. Пусть он решает.','samokhin',1],
 ['Глава I · Суд идёт','Судья Агафонов','Всем встать! Суд идёт! Дело № 4954/2026 о чатовой неверности принимается к рассмотрению.','judge','angry'],
@@ -41,7 +42,20 @@ let pos=0,choices={},reaction=false,muted=true,audio;
 try{const s=JSON.parse(localStorage.getItem(KEY)||'{}');pos=Math.max(0,Math.min(scenes.length-1,s.pos||0));choices=s.choices||{};reaction=!!s.reaction}catch{}
 function save(){localStorage.setItem(KEY,JSON.stringify({pos,choices,reaction}))}
 function chime(){if(muted)return;try{audio??=new (window.AudioContext||window.webkitAudioContext)();const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=440;o.type='sine';g.gain.setValueAtTime(.02,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.09);o.connect(g).connect(audio.destination);o.start();o.stop(audio.currentTime+.09)}catch{}}
-function picture(s){const box=$('character');box.replaceChildren();const key=s[3],m=s[4];if(!cast.has(key)){box.textContent=key==='bot'?'🤖':key==='chick'?'🐥':'📜';return}const img=document.createElement('img');img.alt=s[1];let mood=key==='judge'?(judgeMoods.has(m)?m:'neutral'):(Number.isInteger(m)?m:0);img.src=`assets/${key}_${mood}.webp`;img.onerror=()=>{img.onerror=null;img.src=`assets/${key}_hero.webp`};box.append(img)}
+const assetMap={judge:{neutral:'judge_neutral.webp',thoughtful:'judge_thinking.webp',smile:'judge_smile.webp',angry:'judge_angry.webp',surprised:'judge_surprised.webp',verdict:'judge_verdict.webp'}};
+function picture(s){
+ const box=$('character');box.replaceChildren();const key=s[3],m=s[4];
+ if(!cast.has(key)){
+   const symbol=document.createElement('span');symbol.className='scene-symbol';symbol.textContent=key==='bot'?'🤖':key==='chick'?'🐥':'💬';box.append(symbol);return;
+ }
+ const img=document.createElement('img');img.alt=`Иллюстрация: ${s[1]}`;
+ // Large portraits are preferred over tiny thumbnails, which looked blurry on iPhone.
+ // Judge has dedicated expression files; other cast use the full-resolution hero crop.
+ const file=key==='judge'?(assetMap.judge[m]||assetMap.judge.neutral):`${key}_hero.webp`;
+ img.src=`assets/${file}`;
+ img.onerror=()=>{img.onerror=null;img.src=`assets/${key}.webp`};
+ box.append(img);
+}
 function show(){const s=scenes[pos],picked=choices[pos],option=s[5];$('act').textContent=s[0];$('options').replaceChildren();if(option&&picked!==undefined&&reaction){const r=option[picked];$('speaker').textContent=r[1];$('dialog').textContent=r[2];picture([s[0],r[1],r[2],r[3],r[4]]);$('next').hidden=false}else{$('speaker').textContent=s[1];$('dialog').textContent=s[2];picture(s);if(option&&picked===undefined){option.forEach((o,i)=>{const b=document.createElement('button');b.textContent=o[0];b.onclick=()=>{choices[pos]=i;reaction=true;save();show();chime()};$('options').append(b)});$('next').hidden=true}else{$('next').hidden=false}}$('next').textContent=pos===scenes.length-1?'↻ Смотреть сначала':'Далее →';$('progress').textContent=`Сцена ${pos+1} из ${scenes.length}`;save()}
 function advance(){if($('next').hidden)return;if(reaction){reaction=false}else if(pos===scenes.length-1){pos=0;choices={}}else{pos++}chime();show()}
 $('next').onclick=advance;
